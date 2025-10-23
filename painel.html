@@ -7,9 +7,8 @@
 <style>
 body{margin:0;font-family:'Poppins',sans-serif;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;}
 .rgb-border{position:relative;background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border-radius:20px;padding:40px;width:350px;text-align:center;}
-.rgb-border h1{margin-bottom:25px;}
 input{width:90%;padding:10px;margin:10px 0;border:none;border-radius:10px;font-size:15px;text-align:center;}
-button{width:95%;padding:12px;border:none;border-radius:10px;background:linear-gradient(90deg,#00ffff,#0077ff);color:#fff;font-size:16px;cursor:pointer;transition:.3s;}
+button{width:95%;padding:12px;border:none;border-radius:10px;background:linear-gradient(90deg,#00ffff,#0077ff);color:#fff;font-size:16px;cursor:pointer;}
 button:hover{transform:scale(1.05);box-shadow:0 0 15px rgba(0,255,255,0.4);}
 .painel{display:none;flex-direction:column;align-items:center;}
 .painel-content{background:rgba(255,255,255,0.08);border-radius:15px;padding:20px;width:90%;}
@@ -30,20 +29,19 @@ button:hover{transform:scale(1.05);box-shadow:0 0 15px rgba(0,255,255,0.4);}
   <h2>🎉 Bem-vindo ao Painel Premium</h2>
   <div class="painel-content">
     <p>Acesso liberado com sucesso ✅</p>
-    <p>Aqui vai o conteúdo do painel...</p>
   </div>
 </div>
 
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs, updateDoc, query, where, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "SUA_API_KEY",
   authDomain: "SEU_PROJECT_ID.firebaseapp.com",
   projectId: "SEU_PROJECT_ID",
   storageBucket: "SEU_PROJECT_ID.appspot.com",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+  messagingSenderId: "SEU_MESSAGING_ID",
   appId: "SEU_APP_ID"
 };
 
@@ -51,27 +49,29 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 async function verificarLogin(){
-  const login = document.getElementById("login").value.trim();
-  const senha = document.getElementById("senha").value.trim();
-  const erro = document.getElementById("erro-msg");
+  const login=document.getElementById("login").value.trim();
+  const senha=document.getElementById("senha").value.trim();
+  const erro=document.getElementById("erro-msg");
+  
+  const q=query(collection(db,"credenciais"),where("login","==",login),where("senha","==",senha));
+  const snap=await getDocs(q);
+  
+  if(snap.empty){erro.style.display="block";setTimeout(()=>erro.style.display="none",3000);return;}
+  
+  let docRef;
+  snap.forEach(d=>{docRef=doc(db,"credenciais",d.id);});
+  const credDoc=snap.docs[0].data();
 
-  if(!login || !senha){ erro.style.display='block'; setTimeout(()=>erro.style.display='none',3000); return; }
-
-  const q = query(collection(db,"credenciais"), where("login","==",login), where("senha","==",senha), where("used","==",false));
-  const snapshot = await getDocs(q);
-
-  if(!snapshot.empty){
-    snapshot.forEach(async (docSnap)=>{
-      await updateDoc(doc(db,"credenciais",docSnap.id),{used:true});
-    });
+  if(credDoc.used){
+    erro.textContent="Essa conta já foi usada ❌";
+    erro.style.display="block";
+    setTimeout(()=>erro.style.display="none",3000);
+  }else{
+    await updateDoc(docRef,{used:true});
     document.getElementById("login-box").style.display="none";
     document.getElementById("painel").style.display="flex";
-  } else {
-    erro.style.display='block';
-    setTimeout(()=>erro.style.display='none',3000);
   }
 }
 </script>
-
 </body>
 </html>
