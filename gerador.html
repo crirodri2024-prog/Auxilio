@@ -24,82 +24,43 @@ button{margin:5px;padding:10px 20px;border:none;border-radius:10px;cursor:pointe
 <div>
   <button class="generate-one" onclick="generateCredentials(1)">Gerar 1</button>
   <button class="generate-six" onclick="generateCredentials(6)">Gerar 6</button>
-  <button class="clear" onclick="clearOutput()">Limpar</button>
-  <button class="copy-all" onclick="copyAll()">Copiar tudo</button>
 </div>
 
 <div id="output"><div style="opacity:0.7">Os logins e senhas aparecerão aqui 👇</div></div>
 
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "SUA_API_KEY",
   authDomain: "SEU_PROJECT_ID.firebaseapp.com",
   projectId: "SEU_PROJECT_ID",
   storageBucket: "SEU_PROJECT_ID.appspot.com",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+  messagingSenderId: "SEU_MESSAGING_ID",
   appId: "SEU_APP_ID"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const generated = [];
-
-function makeLogin(){ return "user"+Math.random().toString(36).substring(2,8); }
-function makeSenha(){ return Math.random().toString(36).substring(2,10); }
+function makeLogin(){return "user"+Math.random().toString(36).substring(2,8);}
+function makeSenha(){return Math.random().toString(36).substring(2,10);}
 
 async function generateCredentials(qtd){
+  const output=document.getElementById("output");
+  output.innerHTML="";
   for(let i=0;i<qtd;i++){
     const login=makeLogin();
     const senha=makeSenha();
     const cred={login,senha,used:false};
-
-    try {
-      await addDoc(collection(db,"credenciais"),cred);
-      generated.push(cred);
-    } catch(e){
-      console.error("Erro ao salvar credenciais:",e);
-    }
-  }
-  renderOutput();
-}
-
-function renderOutput(){
-  const output=document.getElementById("output");
-  output.innerHTML="";
-  if(generated.length===0){
-    output.innerHTML='<div style="opacity:0.7">Os logins e senhas aparecerão aqui 👇</div>';
-    return;
-  }
-  generated.forEach(cred=>{
+    await addDoc(collection(db,"credenciais"),cred);
     const div=document.createElement("div");
     div.className="cred";
-    const txt=document.createElement("div");
-    txt.className="cred-text";
-    txt.textContent=`Login: ${cred.login} | Senha: ${cred.senha}`;
-    const btn=document.createElement("button");
-    btn.textContent="Copiar";
-    btn.onclick=()=>copyText(`Login: ${cred.login} | Senha: ${cred.senha}`);
-    div.appendChild(txt);
-    div.appendChild(btn);
+    div.innerHTML=`<div class="cred-text">Login: ${login} | Senha: ${senha}</div>`;
     output.appendChild(div);
-  });
-  output.scrollTop=output.scrollHeight;
+  }
 }
-
-function copyText(str){ navigator.clipboard.writeText(str).then(()=>alert("Copiado!")); }
-
-function copyAll(){
-  if(generated.length===0) return;
-  const all=generated.map(c=>`Login: ${c.login} | Senha: ${c.senha}`).join("\n");
-  navigator.clipboard.writeText(all).then(()=>alert("Todos copiados!"));
-}
-
-function clearOutput(){ generated.length=0; renderOutput(); }
-
 </script>
 </body>
 </html>
