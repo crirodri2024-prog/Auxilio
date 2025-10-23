@@ -1,0 +1,155 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Login e Senha</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding-top: 40px;
+    }
+    h1 {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .generate-one {
+      background: linear-gradient(90deg, #00ffff, #0077ff);
+      color: #000;
+    }
+    .generate-six {
+      background: linear-gradient(90deg, #ff00ff, #7700ff);
+    }
+    .clear {
+      background: linear-gradient(90deg, #ff4444, #cc0000);
+    }
+    .copy-all {
+      background: linear-gradient(90deg, #00e676, #00b045);
+      color: #000;
+    }
+    #output {
+      margin-top: 30px;
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 12px;
+      min-height: 150px;
+      font-family: monospace;
+      overflow-wrap: break-word;
+    }
+    .cred {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .cred-text {
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+
+<h1>⚡ Gerador de Login e Senha ⚡</h1>
+
+<div>
+  <button class="generate-one" onclick="generateCredentials(1)">Gerar 1</button>
+  <button class="generate-six" onclick="generateCredentials(6)">Gerar 6</button>
+  <button class="clear" onclick="clearOutput()">Limpar</button>
+  <button class="copy-all" onclick="copyAll()">Copiar tudo</button>
+</div>
+
+<div id="output">
+  <div style="opacity: 0.7">Os logins e senhas aparecerão aqui 👇</div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_PROJECT_ID.firebaseapp.com",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_PROJECT_ID.appspot.com",
+    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+    appId: "SEU_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const generated = [];
+
+  function makeLogin() {
+    return "user" + Math.random().toString(36).substring(2, 8);
+  }
+
+  function makeSenha() {
+    return Math.random().toString(36).substring(2, 10);
+  }
+
+  async function generateCredentials(qtd) {
+    for (let i = 0; i < qtd; i++) {
+      const login = makeLogin();
+      const senha = makeSenha();
+      const cred = { login, senha, used: false };
+
+      try {
+        await addDoc(collection(db, "credenciais"), cred);
+        generated.push(cred);
+      } catch (error) {
+        console.error("Erro ao salvar credenciais:", error);
+      }
+    }
+    renderOutput();
+  }
+
+  function renderOutput() {
+    const output = document.getElementById("output");
+    output.innerHTML = "";
+    if (generated.length === 0) {
+      output.innerHTML = '<div style="opacity: 0.7">Os logins e senhas aparecerão aqui 👇</div>';
+      return;
+    }
+    generated.forEach((cred) => {
+      const div = document.createElement("div");
+      div.className = "cred";
+      const txt = document.createElement("div");
+      txt.className = "cred-text";
+      txt.textContent = `Login: ${cred.login}  |  Senha: ${cred.senha}`;
+      const btn = document.createElement("button");
+      btn.textContent = "Copiar";
+      btn.onclick = () => copyText(`Login: ${cred.login} | Senha: ${cred.senha}`);
+      div.appendChild(txt);
+      div.appendChild(btn);
+      output.appendChild(div);
+    });
+    output.scrollTop = output.scrollHeight;
+  }
+
+  function copyText(str) {
+    navigator.clipboard.writeText(str).then(() => alert("Copiado!"));
+  }
+
+  function copyAll() {
+   13

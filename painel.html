@@ -1,0 +1,125 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Premium</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .rgb-border {
+      position: relative;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px;
+      width: 350px;
+      text-align: center;
+    }
+    .rgb-border h1 {
+      margin-bottom: 25px;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      text-align: center;
+    }
+    button {
+      width: 95%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #00ffff, #0077ff);
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: .3s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    }
+    .painel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+    .painel-content {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 15px;
+      padding: 20px;
+      width: 90%;
+    }
+    .erro {
+      color: #ff5555;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="rgb-border" id="login-box">
+  <h1>Login no Painel</h1>
+  <input type="email" id="login" placeholder="E-mail">
+  <input type="password" id="senha" placeholder="Senha">
+  <button onclick="verificarLogin()">Entrar</button>
+  <p class="erro" id="erro-msg">E-mail ou senha inválidos ❌</p>
+</div>
+
+<div class="rgb-border painel" id="painel">
+  <h2>🎉 Bem-vindo ao Painel Premium</h2>
+  <div class="painel-content">
+    <p>Acesso liberado com sucesso ✅</p>
+    <p>Aqui vai o conteúdo do painel...</p>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_PROJECT_ID.firebaseapp.com",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_PROJECT_ID.appspot.com",
+    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+    appId: "SEU_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  function verificarLogin() {
+    const login = document.getElementById("login").value.trim();
+    const senha = document.getElementById("senha").value.trim();
+    const erro = document.getElementById("erro-msg");
+
+    signInWithEmailAndPassword(auth, login, senha)
+      .then(() => {
+        document.getElementById("login-box").style.display = "none";
+        document.getElementById("painel").style.display = "flex";
+      })
+      .catch(() => {
+        erro.style.display = "block";
+        setTimeout(() => erro.style.display = "none", 3000);
+      });
+  }
+</script>
+
+</body>
+</html>
