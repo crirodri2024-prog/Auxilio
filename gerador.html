@@ -1,4 +1,4 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -48,11 +48,9 @@ const db = getFirestore(app);
 
 const generated = [];
 
-// Cria login e senha aleatórios
 function makeLogin(){ return "user"+Math.random().toString(36).substring(2,8); }
 function makeSenha(){ return Math.random().toString(36).substring(2,10); }
 
-// Gera credenciais e salva no Firestore
 async function generateCredentials(qtd){
   for(let i=0;i<qtd;i++){
     const login=makeLogin();
@@ -69,7 +67,6 @@ async function generateCredentials(qtd){
   renderOutput();
 }
 
-// Mostra na tela
 function renderOutput(){
   const output=document.getElementById("output");
   output.innerHTML="";
@@ -93,17 +90,14 @@ function renderOutput(){
   output.scrollTop=output.scrollHeight;
 }
 
-// Copiar individual
 function copyText(str){ navigator.clipboard.writeText(str).then(()=>alert("Copiado!")); }
 
-// Copiar todos
 function copyAll(){
   if(generated.length===0) return;
   const all=generated.map(c=>`Login: ${c.login} | Senha: ${c.senha}`).join("\n");
   navigator.clipboard.writeText(all).then(()=>alert("Todos copiados!"));
 }
 
-// Limpar
 function clearOutput(){ generated.length=0; renderOutput(); }
 
 </script>
